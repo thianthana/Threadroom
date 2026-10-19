@@ -1,0 +1,9 @@
+{
+  "name": "threadroom-07",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Thai 360° clothing order app — GitHub Pages + Google Sheets",
+  "scripts": { "test": "node --test tests/*.test.mjs" },
+  "engines": { "node": ">=22" }
+}
