@@ -1,13 +1,11 @@
 # THREADROOM / 07
 
-A Thai clothing order app for two required shirt designs, with a 360° fitting room, size-dependent mannequin meshes, order revisions, an admin workspace, Google Sheets storage and queued email notifications.
+Thai two-design clothing order system: GitHub Pages frontend, Google Sheets storage, Apps Script backend, email OTP for buyers and a server-verified six-digit admin PIN.
 
-**Start here: [คู่มือติดตั้งภาษาไทย](README-TH.md)**
+**[คู่มือติดตั้งภาษาไทย](README-TH.md)**
 
-The checked-in configuration is a clearly labelled browser-local demo. Deploy the included Apps Script backend and configure `dist/config.js` before accepting real orders.
-
-Frontend: static ES modules, native WebGL, Canvas fallback. No package installation or build required. GitHub Pages workflow publishes `dist/` after tests pass. Node.js 22+ is required for tests.
+The app does not accept orders until a real Apps Script /exec URL has been configured. Install and authorize the included backend in the Sheet owner's Google account, then configure dist/config.js. The public repository contains no admin PIN or server secret.
 
 ```bash
-npm test
+node --test tests/*.test.mjs
 ```

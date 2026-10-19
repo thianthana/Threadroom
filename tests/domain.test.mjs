@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {PRODUCTS,SIZES,FITS,EMPTY_ITEMS,measurements,orderStatus,isClosed,changeOrder,clone} from '../dist/domain.mjs';
 import {buildModel} from '../dist/mannequin.mjs';
-import {DemoAPI} from '../dist/api.mjs';
 const actor={email:'buyer@example.com',name:'Buyer',role:'user'};
 const admin={email:'admin@example.com',name:'Admin',role:'admin'};
 const base=()=>({email:actor.email,name:actor.name,items:clone(EMPTY_ITEMS),revision:0});
@@ -43,17 +42,4 @@ test('admin resets only selected design and logs previous selection',()=>{
 test('each size and fit changes the actual mesh dimensions without nonfinite vertices',()=>{
   for(const product of PRODUCTS)for(const body of ['female','male'])for(const fit of FITS){let previous=0;for(const size of SIZES){const m=buildModel({product:product.id,body,fit:fit.id,size});assert.ok(m.width>previous);previous=m.width;assert.ok(m.faces.length>1000);for(const face of m.faces)for(const v of face.vertices)assert.ok(v.every(Number.isFinite));}}
   assert.notDeepEqual(buildModel({fit:'shaped'}).faces,buildModel({fit:'straight'}).faces);
-});
-test('demo edit, role switch, admin reset and email simulation work as one flow',async()=>{
-  const cache=new Map(),storage={getItem:k=>cache.get(k),setItem:(k,v)=>cache.set(k,v)},api=new DemoAPI(storage);
-  await api.loginDemo('user');await api.save({items:{polo,tee},expectedRevision:0});
-  await api.loginDemo('admin');assert.equal((await api.admin()).orders.length,1);
-  await api.save({items:{polo:null},reason:'test reset',expectedRevision:1},'visitor@example.com');
-  const d=await api.admin();assert.equal(d.outbox.length,1);assert.equal(d.outbox[0].status,'demo');assert.equal(d.logs.length,2);
-  await api.loginDemo('user');assert.equal((await api.load()).order.items.polo,null);assert.equal((await api.load()).logs.length,2);
-  const restored=new DemoAPI(storage);await restored.loginDemo('user');assert.equal((await restored.load()).order.revision,2);
-  await api.loginDemo('admin');await api.updateSettings({open:false,closeAt:'',expectedRevision:0});await api.loginDemo('user');await assert.rejects(api.save({items:{polo},expectedRevision:2}),/ปิด/);
-});
-test('admin can order for themselves through the personal workflow',async()=>{
-  const api=new DemoAPI({getItem:()=>null,setItem:()=>{}});await api.loginDemo('admin');const result=await api.save({items:{polo,tee},expectedRevision:0});assert.equal(result.mailStatus,null);assert.equal((await api.admin()).outbox.length,0);
 });
